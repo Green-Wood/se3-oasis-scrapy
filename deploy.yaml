@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scrapyrt
+  namespace: gitlab-managed-apps
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scrapyrt
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: scrapyrt
+    spec:
+      containers:
+      - name: scrapyrt
+        image: greenw00d/scrapyrt
+        imagePullPolicy: Always
+        env:
+          - name: MONGOHOST
+            value: mongodb://se3-shard-mongos-0.se3-shard-svc.mongodb.svc.cluster.local,se3-shard-mongos-1.se3-shard-svc.mongodb.svc.cluster.local
+          - name: COLLNAME
+            value: test_conf
+        readinessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /crawl.json?spider_name=conferences&url=http://34.102.235.205/prod/actuator/health&callback=liveness
+              port: 9080
+            initialDelaySeconds: 60
+        livenessProbe:
+            periodSeconds: 60
+            httpGet:
+              path: /crawl.json?spider_name=conferences&url=http://34.102.235.205/prod/actuator/health&callback=liveness
+              port: 9080
+            initialDelaySeconds: 60
+        resources:
+          requests:
+            memory: "300M"
+            cpu: "0.25"
+          limits:
+            memory: "400M"
+            cpu: "0.5"
+        ports:
+        - containerPort: 9080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scrapyrt-svc
+  namespace: gitlab-managed-apps
+spec:
+  ports:
+  - port: 9080
+    targetPort: 9080
+    name: scrapyrt-svc
+  selector:
+    app: scrapyrt
+  type: NodePort
