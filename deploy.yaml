@@ -4,7 +4,7 @@ metadata:
   name: scrapyrt
   namespace: gitlab-managed-apps
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: scrapyrt
@@ -26,7 +26,7 @@ spec:
           - name: MONGOHOST
             value: mongodb://se3-shard-mongos-0.se3-shard-svc.mongodb.svc.cluster.local,se3-shard-mongos-1.se3-shard-svc.mongodb.svc.cluster.local
           - name: COLLNAME
-            value: test_conf
+            value: large
         readinessProbe:
             periodSeconds: 60
             httpGet:
