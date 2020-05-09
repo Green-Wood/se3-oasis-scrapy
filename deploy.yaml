@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: scrapyrt
-        image: greenw00d/scrapyrt
+        image: greenw00d/scrapyrt:latest
         imagePullPolicy: Always
         env:
           - name: MONGOHOST

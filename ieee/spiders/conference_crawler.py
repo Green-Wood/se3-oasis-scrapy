@@ -150,6 +150,11 @@ class ConferenceCrawler(scrapy.Spider):
 
             # 如果没有doi号或者文档类型
             if paper['authors'] and paper['doi'] and paper['contentType'] and paper['contentType'] != 'standards':
+                
+                for author in paper['authors']:
+                    if author['affiliation'] in {"", "missing"}:
+                        author['affiliation'] = None
+
                 doi = paper['doi']
                 right_doi = doi.split('/')[1]
                 publication_name = right_doi.split('.')[0]
