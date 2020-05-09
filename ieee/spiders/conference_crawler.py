@@ -40,9 +40,18 @@ class ConferenceCrawler(scrapy.Spider):
         """
         now = datetime.utcnow() + timedelta(hours=8)
         proceedings = response.meta['proceedings']
+
+        cursor = db.conferences.find({"proceedings.proceedingId": {"$in": proceedings}})
+
+        proceeding_objs = []
+        for conf in cursor:
+            for pro_obj in conf['proceedings']:
+                if pro_obj['proceedingId'] in proceedings:
+                    proceeding_objs.append(pro_obj)
+
         # 新建任务
         self.task_id = task_coll.insert_one({
-            'proceedings': proceedings,
+            'proceedings': proceeding_objs,
             'start_time': now,
             'end_time': None,
             'is_finished': False,
@@ -58,6 +67,9 @@ class ConferenceCrawler(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse_metadata, headers=self.header)
 
     def closed(self, reason):
+        """
+        结束爬虫任务
+        """
         now = datetime.utcnow() + timedelta(hours=8)
         task_coll.update_one(
             filter={'_id': self.task_id},
