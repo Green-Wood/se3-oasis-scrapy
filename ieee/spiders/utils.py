@@ -5,4 +5,14 @@ def get_keywords(paper):
     for kds in paper['keywords']:
         if 'kwd' in kds and 'type' in kds and 'Author Keywords' not in kds['type']:
             res += kds['kwd']
-    return res if res else None
+    
+    if not res:
+        return None
+    
+    tmp = []
+    for kwd in res:
+        if len(kwd) > 15 and ',' in kwd:
+            tmp += [x for x in kwd.split(',')]
+        else:
+            tmp.append(kwd)
+    return tmp
