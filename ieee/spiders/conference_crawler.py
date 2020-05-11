@@ -181,8 +181,16 @@ class ConferenceCrawler(scrapy.Spider):
         paper = response.meta['item']
 
         if 'references' in content and not collection.find_one({'ieeeId': paper['ieeeId']}):
+            refs = []
+            for r in content['references']:
+                if 'title' in r and 'googleScholarLink' in r and r['title'] and r['title'] != '':
+                    refs.append({
+                        'title': r['title'],
+                        'googleScholarLink': r['googleScholarLink']
+                    })
+
             logging.log(logging.INFO, 'insert to DB, ieeeId: {}'.format(paper['ieeeId']))
-            paper['references'] = content['references']
+            paper['references'] = refs
             collection.insert_one(paper)
             task_coll.update_one(
                 filter={'_id': self.task_id},

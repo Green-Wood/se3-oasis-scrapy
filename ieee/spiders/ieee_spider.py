@@ -75,8 +75,16 @@ class IEEESpider(scrapy.Spider):
         paper = response.meta['item']
 
         if 'references' in content:
+            refs = []
+            for r in content['references']:
+                if 'title' in r and 'googleScholarLink' in r and r['title'] and r['title'] != '':
+                    refs.append({
+                        'title': r['title'],
+                        'googleScholarLink': r['googleScholarLink']
+                    })
+
             logging.log(logging.INFO, 'insert to DB, ieeeId: {}'.format(paper['ieeeId']))
-            paper['references'] = content['references']
+            paper['references'] = refs
             # save_item({'ieeeId': paper['ieeeId']})
             collection.insert_one(paper)
 
