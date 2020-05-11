@@ -164,6 +164,8 @@ class ConferenceCrawler(scrapy.Spider):
             if paper['authors'] and paper['doi'] and paper['contentType'] and paper['contentType'] != 'standards':
                 
                 for author in paper['authors']:
+                    author.pop('firstName')
+                    author.pop('lastName')
                     if author['affiliation'] in {"", "missing"}:
                         author['affiliation'] = None
 
