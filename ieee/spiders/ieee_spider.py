@@ -56,8 +56,10 @@ class IEEESpider(scrapy.Spider):
             if paper['authors'] and paper['doi'] and paper['contentType'] and paper['contentType'] != 'standards':
 
                 for author in paper['authors']:
-                    author.pop('firstName')
-                    author.pop('lastName')
+                    if 'firstName' in author:
+                        author.pop('firstName')
+                    if 'lastName' in author:
+                        author.pop('lastName')
                     if author['affiliation'] in {"", "missing"}:
                         author['affiliation'] = None
 
