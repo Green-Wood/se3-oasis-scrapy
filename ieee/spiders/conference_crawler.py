@@ -28,6 +28,7 @@ class ConferenceCrawler(scrapy.Spider):
     proceedings_url = 'https://ieeexplore.ieee.org/rest/search/pub/{}/issue/{}/toc'
     base_url = "https://ieeexplore.ieee.org/document/"
     task_id = None
+    total_num_dict = dict()
 
     def liveness_probe(self, response):
         pass
@@ -56,7 +57,8 @@ class ConferenceCrawler(scrapy.Spider):
             'end_time': None,
             'is_finished': False,
             'description': None,
-            'paper_count': 0
+            'paper_count': 0,
+            'total_paper_num': 0
         }).inserted_id
 
         logging.log(logging.INFO, 'TASK ID: {}'.format(self.task_id))
@@ -112,6 +114,21 @@ class ConferenceCrawler(scrapy.Spider):
         :return:
         """
         content = json.loads(response.text)
+
+        # 获取这个论文集的总论文数目
+        proceeding_id = response.meta['body']['punumber']
+        if proceeding_id not in self.total_num_dict:
+            total = int(content['totalRecords'])
+            self.total_num_dict[proceeding_id] = total
+            task_coll.update_one(
+                filter={'_id': self.task_id},
+                update={
+                    '$inc': {
+                        'total_paper_num': total
+                    }
+                }
+            )
+
         for rec in content['records']:
             link_num: str = rec['articleNumber']
 
