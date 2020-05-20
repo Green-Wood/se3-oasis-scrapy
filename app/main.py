@@ -25,14 +25,14 @@ class Proceeding(BaseModel):
     proceedings: List[str]
 
 
-def crawl(proceedings: List[str]):
+def crawl_proceedings(proceedings: List[str]):
     process.crawl(ConferenceCrawler, proceedings=proceedings)
     process.start()
 
 
 @app.post("/crawl")
 async def crawl(proceeding: Proceeding, background_tasks: BackgroundTasks):
-    background_tasks.add_task(crawl, proceeding.proceedings)
+    background_tasks.add_task(crawl_proceedings, proceeding.proceedings)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content={'message': 'task successfully created'})
 
 
