@@ -3,6 +3,7 @@ import logging
 import random
 import re
 import os
+from typing import List
 
 import scrapy
 from pymongo import MongoClient
@@ -30,24 +31,24 @@ class ConferenceCrawler(scrapy.Spider):
     task_id = None
     total_num_dict = dict()
 
-    def liveness_probe(self, response):
-        pass
+    def __init__(self, *args, **kwargs):
+        super(ConferenceCrawler, self).__init__(*args, **kwargs)
+        self.proceedings: List[str] = kwargs.get('proceedings')
 
-    def start(self, response):
+    def start_requests(self):
         """
         初始化爬虫
         :param: response.meta['proceedings'] 需要爬取的论文集编号
         :return:
         """
         now = datetime.utcnow() + timedelta(hours=8)
-        proceedings = response.meta['proceedings']
 
-        cursor = db.conferences.find({"proceedings.proceedingId": {"$in": proceedings}})
+        cursor = db.conferences.find({"proceedings.proceedingId": {"$in": self.proceedings}})
 
         proceeding_objs = []
         for conf in cursor:
             for pro_obj in conf['proceedings']:
-                if pro_obj['proceedingId'] in proceedings:
+                if pro_obj['proceedingId'] in self.proceedings:
                     proceeding_objs.append(pro_obj)
 
         # 新建任务
@@ -63,9 +64,10 @@ class ConferenceCrawler(scrapy.Spider):
 
         logging.log(logging.INFO, 'TASK ID: {}'.format(self.task_id))
 
-        logging.log(logging.INFO, 'Now start crawling {}'.format(proceedings))
-        for pubid in proceedings:
+        logging.log(logging.INFO, 'Now start crawling {}'.format(self.proceedings))
+        for pubid in self.proceedings:
             url = self.meta_url + pubid
+            logging.log(logging.INFO, "scrapy url: {}".format(url))
             yield scrapy.Request(url=url, callback=self.parse_metadata, headers=self.header)
 
     def closed(self, reason):
