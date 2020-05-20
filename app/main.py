@@ -33,7 +33,7 @@ def crawl_proceedings(proceedings: List[str]):
 @app.post("/crawl")
 async def crawl(proceeding: Proceeding, background_tasks: BackgroundTasks):
     background_tasks.add_task(crawl_proceedings, proceeding.proceedings)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content={'message': 'task successfully created'})
+    return {'message': 'task successfully created'}
 
 
 @app.get("/health")
