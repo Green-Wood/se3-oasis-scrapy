@@ -11,8 +11,8 @@ from ieee.spiders.utils import get_keywords
 from datetime import datetime, timedelta
 
 
-collection_name = os.getenv('COLLNAME', 'test_conf')
-url = os.getenv('MONGOHOST', 'mongodb://localhost')
+collection_name = os.getenv('COLLNAME', 'large')
+url = os.getenv('MONGOHOST', 'mongodb://greenwood:2020liujia@localhost:27017')
 
 client = MongoClient(url)
 db = client['oasis']
@@ -187,8 +187,10 @@ class ConferenceCrawler(scrapy.Spider):
                         author.pop('firstName')
                     if 'lastName' in author:
                         author.pop('lastName')
-                    if author['affiliation'] in {"", "missing"}:
+                    if not author['affiliation'] or author['affiliation'][0] in {"", "missing"}:
                         author['affiliation'] = None
+                    else:
+                        author['affiliation'] = author['affiliation'][0]
 
                 doi = paper['doi']
                 right_doi = doi.split('/')[1]
