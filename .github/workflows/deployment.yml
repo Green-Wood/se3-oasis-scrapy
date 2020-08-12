@@ -17,7 +17,17 @@ jobs:
       with:
         image: greenw00d/backend-scrapy
         tag: latest
-        dockerfile: Dockerfile
+        dockerfile: backend.dockerfile
+        registry: docker.io
+        username: greenw00d
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - uses: mr-smithers-excellent/docker-build-push@v3
+      name: Build & push Docker image
+      with:
+        image: greenw00d/celeryworker
+        tag: latest
+        dockerfile: celeryworker.dockerfile
         registry: docker.io
         username: greenw00d
         password: ${{ secrets.DOCKER_PASSWORD }}
@@ -29,7 +39,9 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         script: |
+          docker pull greenw00d/celeryworker
+          docker run --name=celeryworker --restart=always --network="host" -d greenw00d/celeryworker
           docker pull greenw00d/backend-scrapy
           docker stop backend-scrapy
           docker rm backend-scrapy
-          docker run --name=backend-scrapy --restart=always --network="host" -p 80:80 -d greenw00d/backend-scrapy
+          docker run --env MONGOHOST=${{ secrets.MONGOHOST }} --name=backend-scrapy --restart=always --network="host" -p 80:80 -d greenw00d/backend-scrapy

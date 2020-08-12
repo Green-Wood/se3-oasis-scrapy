@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 
 collection_name = os.getenv('COLLNAME', 'large')
-url = os.getenv('MONGOHOST', 'mongodb://greenwood:2020liujia@localhost:27017')
+url = os.getenv('MONGOHOST', 'mongodb://localhost:27017')
 
 client = MongoClient(url)
 db = client['oasis']

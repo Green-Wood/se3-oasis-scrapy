@@ -1,16 +1,12 @@
 from typing import List
 
-from fastapi import FastAPI, BackgroundTasks, status
-from scrapy.crawler import CrawlerProcess
+from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.responses import JSONResponse
 import uvicorn
-from ieee.spiders.conference_crawler import ConferenceCrawler
-from scrapy.utils.project import get_project_settings
 from fastapi.middleware.cors import CORSMiddleware
+from app.worker import crawl_proceedings
 
 app = FastAPI()
-process = CrawlerProcess(get_project_settings())
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,14 +21,9 @@ class Proceeding(BaseModel):
     proceedings: List[str]
 
 
-def crawl_proceedings(proceedings: List[str]):
-    process.crawl(ConferenceCrawler, proceedings=proceedings)
-    process.start()
-
-
 @app.post("/crawl")
-async def crawl(proceeding: Proceeding, background_tasks: BackgroundTasks):
-    background_tasks.add_task(crawl_proceedings, proceeding.proceedings)
+def crawl(proceeding: Proceeding):
+    crawl_proceedings.delay(proceeding.proceedings)
     return {'message': 'task successfully created'}
 
 
