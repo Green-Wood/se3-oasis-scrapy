@@ -42,7 +42,7 @@ jobs:
           docker pull greenw00d/celeryworker
           docker stop celeryworker
           docker rm celeryworker
-          docker run --name=celeryworker --restart=always --network="host" -d greenw00d/celeryworker
+          docker run --env MONGOHOST=${{ secrets.MONGOHOST }} --name=celeryworker --restart=always --network="host" -d greenw00d/celeryworker
           docker pull greenw00d/backend-scrapy
           docker stop backend-scrapy
           docker rm backend-scrapy
