@@ -1,1 +1,1 @@
-celery -A app.worker worker --loglevel=info
+celery -A app.worker worker --loglevel=info --concurrency=10
