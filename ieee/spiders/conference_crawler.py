@@ -187,7 +187,7 @@ class ConferenceCrawler(scrapy.Spider):
                         author.pop('firstName')
                     if 'lastName' in author:
                         author.pop('lastName')
-                    if not author['affiliation'] or author['affiliation'][0] in {"", "missing"}:
+                    if 'affiliation' not in author or not author['affiliation'] or author['affiliation'][0] in {"", "missing"}:
                         author['affiliation'] = None
                     else:
                         author['affiliation'] = author['affiliation'][0]
