@@ -48,4 +48,4 @@ jobs:
           docker pull greenw00d/backend-scrapy
           docker stop backend-scrapy
           docker rm backend-scrapy
-          docker run --name=backend-scrapy --restart=always -p 80:80 -d greenw00d/backend-scrapy
+          docker run --name=backend-scrapy --restart=always --network="host" -p 80:80 -d greenw00d/backend-scrapy
