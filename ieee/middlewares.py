@@ -108,7 +108,7 @@ class RandomUserAgentMiddleware(object):
     # 随机更换user-agent
     def __init__(self, crawler):
         super(RandomUserAgentMiddleware, self).__init__()
-        self.ua = UserAgent(use_cache_server=False)
+        self.ua = UserAgent(path='fake_agents.json', use_cache_server=False)
 
     @classmethod
     def from_crawler(cls, crawler):
